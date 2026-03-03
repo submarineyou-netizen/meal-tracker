@@ -1,0 +1,17 @@
+{
+  "name": "食事管理アプリ",
+  "short_name": "食事管理",
+  "description": "栄養管理・カロリー管理アプリ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#667eea",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
