@@ -1,0 +1,21 @@
+{
+  "name": "食事管理アプリ",
+  "short_name": "食事管理",
+  "description": "食事を記録して目標を達成",
+  "start_url": "/meal-tracker/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#667eea",
+  "icons": [
+    {
+      "src": "/meal-tracker/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/meal-tracker/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
