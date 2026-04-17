@@ -13,5 +13,52 @@
   </head>
   <body>
     <div id="root"></div>
+    
+    <!-- 日付自動更新スクリプト -->
+    <script>
+      (function() {
+        // 現在の日付を取得
+        function getTodayDate() {
+          return new Date().toISOString().split('T')[0];
+        }
+        
+        // 日付チェック
+        function checkDateChange() {
+          const today = getTodayDate();
+          const lastAccessDate = localStorage.getItem('lastAccessDate');
+          
+          // 初回アクセスまたは日付が変わった場合
+          if (!lastAccessDate || lastAccessDate !== today) {
+            console.log('日付が更新されました:', lastAccessDate, '->', today);
+            localStorage.setItem('lastAccessDate', today);
+            
+            // 日付が変わった場合はリロード（初回は除く）
+            if (lastAccessDate && lastAccessDate !== today) {
+              console.log('日付が変わったのでリロードします');
+              window.location.reload();
+            }
+          }
+        }
+        
+        // 初回チェック
+        checkDateChange();
+        
+        // フォーカス時にチェック
+        window.addEventListener('focus', checkDateChange);
+        
+        // visibilitychangeイベント（PWA対応）
+        document.addEventListener('visibilitychange', function() {
+          if (!document.hidden) {
+            checkDateChange();
+          }
+        });
+        
+        // pagehsowイベント（iOS PWA対応）
+        window.addEventListener('pageshow', checkDateChange);
+        
+        // 定期チェック（10秒ごと）
+        setInterval(checkDateChange, 10000);
+      })();
+    </script>
   </body>
 </html>
