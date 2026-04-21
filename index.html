@@ -14,50 +14,111 @@
   <body>
     <div id="root"></div>
     
-    <!-- 日付自動更新スクリプト -->
+    <!-- 日付リセットボタン -->
+    <button id="dateResetBtn" style="
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      z-index: 9999;
+      display: none;
+    ">📅</button>
+    
+    <!-- 日付自動更新スクリプト（改良版） -->
     <script>
       (function() {
+        const resetBtn = document.getElementById('dateResetBtn');
+        
         // 現在の日付を取得
         function getTodayDate() {
           return new Date().toISOString().split('T')[0];
         }
         
-        // 日付チェック
-        function checkDateChange() {
+        // 強制的に今日の日付をセット
+        function forceSetToday() {
           const today = getTodayDate();
-          const lastAccessDate = localStorage.getItem('lastAccessDate');
           
-          // 初回アクセスまたは日付が変わった場合
-          if (!lastAccessDate || lastAccessDate !== today) {
-            console.log('日付が更新されました:', lastAccessDate, '->', today);
+          // 複数のキーをチェック＆更新
+          const possibleKeys = ['selectedDate', 'currentDate', 'activeDate', 'viewDate'];
+          possibleKeys.forEach(key => {
+            const stored = localStorage.getItem(key);
+            if (stored && stored !== today) {
+              console.log(`${key}を更新:`, stored, '->', today);
+              localStorage.setItem(key, today);
+            }
+          });
+          
+          // lastAccessDateを更新
+          const lastAccessDate = localStorage.getItem('lastAccessDate');
+          const needsUpdate = !lastAccessDate || lastAccessDate !== today;
+          
+          if (needsUpdate) {
+            console.log('lastAccessDateを更新:', lastAccessDate, '->', today);
             localStorage.setItem('lastAccessDate', today);
+            
+            // リセットボタンを表示
+            if (resetBtn && lastAccessDate && lastAccessDate !== today) {
+              resetBtn.style.display = 'block';
+            }
             
             // 日付が変わった場合はリロード（初回は除く）
             if (lastAccessDate && lastAccessDate !== today) {
               console.log('日付が変わったのでリロードします');
-              window.location.reload();
+              setTimeout(() => {
+                window.location.reload();
+              }, 100);
+              return true;
+            }
+          } else {
+            // 日付が正しい場合はボタンを非表示
+            if (resetBtn) {
+              resetBtn.style.display = 'none';
             }
           }
+          
+          return false;
         }
         
-        // 初回チェック
-        checkDateChange();
+        // リセットボタンのクリックイベント
+        if (resetBtn) {
+          resetBtn.addEventListener('click', function() {
+            const today = getTodayDate();
+            localStorage.setItem('lastAccessDate', today);
+            window.location.reload();
+          });
+        }
+        
+        // 初回チェック（最優先）
+        forceSetToday();
+        
+        // Reactアプリの読み込みを待ってから再度チェック
+        window.addEventListener('load', function() {
+          setTimeout(forceSetToday, 500);
+        });
         
         // フォーカス時にチェック
-        window.addEventListener('focus', checkDateChange);
+        window.addEventListener('focus', forceSetToday);
         
         // visibilitychangeイベント（PWA対応）
         document.addEventListener('visibilitychange', function() {
           if (!document.hidden) {
-            checkDateChange();
+            forceSetToday();
           }
         });
         
         // pagehsowイベント（iOS PWA対応）
-        window.addEventListener('pageshow', checkDateChange);
+        window.addEventListener('pageshow', forceSetToday);
         
-        // 定期チェック（10秒ごと）
-        setInterval(checkDateChange, 10000);
+        // 定期チェック（5秒ごと）
+        setInterval(forceSetToday, 5000);
       })();
     </script>
   </body>
